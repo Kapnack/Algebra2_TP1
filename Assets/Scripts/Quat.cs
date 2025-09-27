@@ -61,9 +61,9 @@ public struct Quat
 
     public static Quat Euler(float x, float y, float z)
     {
-        Quat qx = AngleAxis(x, new Vec3(1f, 0f, 0f)); // Pitch
-        Quat qy = AngleAxis(y, new Vec3(0f, 1f, 0f)); // Yaw
-        Quat qz = AngleAxis(z, new Vec3(0f, 0f, 1f)); // Roll
+        Quat qx = AngleAxis(x, Vec3.Right); // Pitch
+        Quat qy = AngleAxis(y, Vec3.Up); // Yaw
+        Quat qz = AngleAxis(z, Vec3.Forward); // Roll
 
         Quat q = qz * qx * qy;
 
@@ -109,5 +109,10 @@ public struct Quat
         uuv *= 2.0f;
 
         return point + uv + uuv;
+    }
+
+    public void OnValidate()
+    {
+        Euler(x, y, x);
     }
 }

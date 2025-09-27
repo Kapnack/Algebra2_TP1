@@ -108,9 +108,6 @@ public struct M4X4
 
     public void SetColumn(int index, Vec3 column)
     {
-        if (index < 0 || index > 3)
-            throw new IndexOutOfRangeException("Indices must be between 0 and 3.");
-
         switch (index)
         {
             case 0:
@@ -136,6 +133,9 @@ public struct M4X4
                 m13 = column.y;
                 m33 = column.z;
                 break;
+            
+            default:
+                throw new IndexOutOfRangeException("Indices must be between 0 and 3.");
         }
     }
 
@@ -339,5 +339,10 @@ public struct M4X4
         mat.m30 = m30; mat.m31 = m31; mat.m32 = m32; mat.m33 = m33;
 
         return mat;
+    }
+
+    private void Validate()
+    {
+        
     }
 }

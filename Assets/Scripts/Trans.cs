@@ -74,7 +74,7 @@ public class Trans
     public void Translate(float x, float y, float z)
     {
         localPosition.x += x;
-        localPosition.y += x;
+        localPosition.y += y;
         localPosition.z += z;
     }
 
@@ -115,5 +115,10 @@ public class Trans
         if (parent != null)
             return parent.LocalToWorldMatrix() * local;
         return local;
+    }
+
+    public void OnValidate()
+    {
+        localRotation.OnValidate();
     }
 }
