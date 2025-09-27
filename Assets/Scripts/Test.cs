@@ -22,15 +22,8 @@ public class Test : MonoBehaviour
 
     private void Update()
     {
-        root.localRotation = Quat.AngleAxis(Time.time * 45f, new Vec3(0, 1, 0));
-        child1.localRotation = Quat.AngleAxis(Time.time * 90f, new Vec3(0, 0, 1));
-    }
-
-    private void OnValidate()
-    {
-        root.OnValidate();
-        child1.OnValidate();
-        child2.OnValidate();
+        root.localRotation = Quat.AngleAxis(Time.time * 45f, Vec3.Up);
+        child1.localRotation = Quat.AngleAxis(Time.time * 90f, Vec3.Forward);
     }
     
     private void OnDrawGizmos()

@@ -110,9 +110,4 @@ public struct Quat
 
         return point + uv + uuv;
     }
-
-    public void OnValidate()
-    {
-        Euler(x, y, x);
-    }
 }

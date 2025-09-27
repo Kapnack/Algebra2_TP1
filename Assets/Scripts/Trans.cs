@@ -116,9 +116,4 @@ public class Trans
             return parent.LocalToWorldMatrix() * local;
         return local;
     }
-
-    public void OnValidate()
-    {
-        localRotation.OnValidate();
-    }
 }
