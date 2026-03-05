@@ -23,8 +23,8 @@ public class Trans
 
     public const float epsilon = 1e-05f;
 
-    public Trans parent;
-    public List<Trans> children = new();
+   private Trans parent;
+   private List<Trans> children = new();
 
     public void AddChild(Trans child)
     {
