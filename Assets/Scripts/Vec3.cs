@@ -198,7 +198,7 @@ public struct Vec3 : IEquatable<Vec3>
             float mag = MathF.Sqrt(sqrMag);
             float scale = maxLength / mag;
 
-            return new Vec3(vector.x * scale, vector.y * scale, vector.z * scale);
+            return new Vec3(vector * scale);
         }
 
         return vector;
