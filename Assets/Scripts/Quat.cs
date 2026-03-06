@@ -18,6 +18,14 @@ public struct Quat
 
     public Quat eulerAngles => Euler(new Vec3(x, y, z));
 
+    public Quat(Vec3 v, float w)
+    {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+        this.w = w;
+    }
+
     public Quat(float x, float y, float z, float w)
     {
         this.x = x;
@@ -31,17 +39,11 @@ public struct Quat
         float rad = angle * Mathf.Deg2Rad;
 
         float halfAngle = rad * 0.5f;
-        float sinHalf = Mathf.Sin(halfAngle);
-        float cosHalf = Mathf.Cos(halfAngle);
-
-        Vec3 normAxis = axis.normalized;
 
         return new Quat
         (
-            normAxis.x * sinHalf,
-            normAxis.y * sinHalf,
-            normAxis.z * sinHalf,
-            cosHalf
+            axis.normalized * Mathf.Sin(halfAngle),
+            Mathf.Cos(halfAngle)
         );
     }
 
@@ -101,7 +103,7 @@ public struct Quat
 
     public static Vec3 operator *(Quat rotation, Vec3 point)
     {
-        Vec3 u = new Vec3(rotation.x, rotation.y, rotation.z);
+        Vec3 u = new(rotation.x, rotation.y, rotation.z);
         Vec3 uv = Vec3.Cross(u, point);
         Vec3 uuv = Vec3.Cross(u, uv);
 
