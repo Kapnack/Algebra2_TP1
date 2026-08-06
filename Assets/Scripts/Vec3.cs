@@ -18,7 +18,7 @@ public struct Vec3 : IEquatable<Vec3>
         {
             float mag = magnitude;
 
-            if (magnitude > epsilon)
+            if (mag > epsilon)
                 return new Vec3(x / mag, y / mag, z / mag);
 
             return new Vec3(0.0f, 0.0f, 0.0f);
