@@ -16,7 +16,7 @@ public struct Quat
     public static Quat identity => new(0, 0, 0, 1);
     public Quat normalized => Normalize(this);
 
-    public Quat eulerAngles => Euler(new Vec3(x, y, z));
+    public Vec3 eulerAngles => ToEulerAngles(this);
 
     public Quat(Vec3 v, float w)
     {
@@ -72,6 +72,37 @@ public struct Quat
         return q.normalized;
     }
 
+    public static Vec3 ToEulerAngles(Quat q)
+    {
+        q = Normalize(q);
+
+        float x = q.x;
+        float y = q.y;
+        float z = q.z;
+        float w = q.w;
+
+        float sinPitch = 2f * (y * z + w * x);
+        sinPitch = Mathf.Clamp(sinPitch, -1f, 1f);
+        float pitch = Mathf.Asin(sinPitch);
+
+        float yaw = 0.0f;
+        float roll = 0.0f;
+
+        if (Mathf.Abs(sinPitch) < 0.99999f)
+        {
+            yaw = Mathf.Atan2(2f * (w * y - x * z), 1f - 2f * (x * x + y * y));
+            roll = Mathf.Atan2(2f * (w * z - x * y), 1f - 2f * (x * x + z * z));
+        }
+        else
+        {
+            // Gimbal lock (pitch ~ +/-90): pin yaw and solve roll.
+            yaw = 0f;
+            roll = Mathf.Atan2(2f * (x * y + w * z), 1f - 2f * (y * y + z * z));
+        }
+
+        return new Vec3(pitch, yaw, roll) * Mathf.Rad2Deg;
+    }
+
     public static Quat Normalize(Quat q)
     {
         float mag = SqrMagnitude(q);
@@ -95,8 +126,8 @@ public struct Quat
         return new Quat
             (
             lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
-            lhs.w * rhs.y - lhs.x * rhs.z + lhs.y * rhs.w + lhs.z * rhs.x,
-            lhs.w * rhs.z + lhs.x * rhs.y - lhs.y * rhs.x + lhs.z * rhs.w,
+            lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z,
+            lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x,
             lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z
         );
     }
