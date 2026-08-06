@@ -23,8 +23,8 @@ public class Trans
 
     public const float epsilon = 1e-05f;
 
-   private Trans parent;
-   private List<Trans> children = new();
+    private Trans parent;
+    private List<Trans> children = new();
 
     public void AddChild(Trans child)
     {
@@ -58,29 +58,30 @@ public class Trans
         localScale = scale;
     }
 
+    // Defaults to Space.Self, matching Unity's Transform.Translate.
     public void Translate(Vec3 translation)
     {
-        Translate(translation.x, translation.y, translation.z);
-    }
-
-    public void Translate(Vec3 translation, Space relativeTo)
-    {
-        if (relativeTo == Space.Self)
-            localPosition += translation;
-        else
-            localPosition += localRotation * translation;
+        Translate(translation, Space.Self);
     }
 
     public void Translate(float x, float y, float z)
     {
-        localPosition.x += x;
-        localPosition.y += y;
-        localPosition.z += z;
+        Translate(new Vec3(x, y, z), Space.Self);
     }
 
     public void Translate(float x, float y, float z, Space relativeTo)
     {
         Translate(new Vec3(x, y, z), relativeTo);
+    }
+
+    public void Translate(Vec3 translation, Space relativeTo)
+    {
+        // Self: move along the object's own (rotated) axes.
+        // World: move along world axes.
+        if (relativeTo == Space.Self)
+            localPosition += localRotation * translation;
+        else
+            localPosition += translation;
     }
 
     public void Rotate(Vec3 eulerAngles)
@@ -103,15 +104,15 @@ public class Trans
     {
         Quat delta = Quat.Euler(new Vec3(x, y, z));
         if (relativeTo == Space.Self)
-            localRotation *= delta;
+            localRotation *= delta;             // post-multiply: local axes
         else
-            localRotation = delta * localRotation;
+            localRotation = delta * localRotation; // pre-multiply: world axes
     }
 
     public M4X4 LocalToWorldMatrix()
     {
         M4X4 local = M4X4.Translate(localPosition) * M4X4.Rotate(localRotation) * M4X4.Scale(localScale);
-        
+
         if (parent != null)
             return parent.LocalToWorldMatrix() * local;
         return local;
