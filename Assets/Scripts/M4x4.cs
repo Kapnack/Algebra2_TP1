@@ -9,6 +9,8 @@ public struct M4X4
     public float m20, m21, m22, m23;
     public float m30, m31, m32, m33;
 
+    public const float epsilon = 1e-05f;
+
     public static M4X4 Identity => new
     (
         1, 0, 0, 0,
@@ -171,11 +173,11 @@ public struct M4X4
     public static M4X4 TRS(Vec3 pos, Quat q, Vec3 s)
     {
         M4X4 S = Scale(s);
-        
+
         M4X4 R = Rotate(q);
-        
+
         M4X4 T = Translate(pos);
-        
+
         return T * R * S;
     }
 
@@ -183,57 +185,71 @@ public struct M4X4
     {
         return new Vec3(m03, m13, m23);
     }
-    
+
     public Quat GetRotation()
     {
-        float trace = m00 + m11 + m22;
+        // Strip scale first so the trace method sees a pure rotation basis.
+        float sx = new Vec3(m00, m10, m20).magnitude;
+        float sy = new Vec3(m01, m11, m21).magnitude;
+        float sz = new Vec3(m02, m12, m22).magnitude;
+
+        if (sx < epsilon) sx = 1f;
+        if (sy < epsilon) sy = 1f;
+        if (sz < epsilon) sz = 1f;
+
+        float r00 = m00 / sx, r10 = m10 / sx, r20 = m20 / sx;
+        float r01 = m01 / sy, r11 = m11 / sy, r21 = m21 / sy;
+        float r02 = m02 / sz, r12 = m12 / sz, r22 = m22 / sz;
+
+        float trace = r00 + r11 + r22;
+
         Quat q = new Quat();
 
         if (trace > 0f)
         {
             float s = Mathf.Sqrt(trace + 1f) * 2f;
             q.w = 0.25f * s;
-            q.x = (m21 - m12) / s;
-            q.y = (m02 - m20) / s;
-            q.z = (m10 - m01) / s;
+            q.x = (r21 - r12) / s;
+            q.y = (r02 - r20) / s;
+            q.z = (r10 - r01) / s;
         }
-        else if (m00 > m11 && m00 > m22)
+        else if (r00 > r11 && r00 > r22)
         {
-            float s = Mathf.Sqrt(1f + m00 - m11 - m22) * 2f;
-            q.w = (m21 - m12) / s;
+            float s = Mathf.Sqrt(1f + r00 - r11 - r22) * 2f;
+            q.w = (r21 - r12) / s;
             q.x = 0.25f * s;
-            q.y = (m01 + m10) / s;
-            q.z = (m02 + m20) / s;
+            q.y = (r01 + r10) / s;
+            q.z = (r02 + r20) / s;
         }
-        else if (m11 > m22)
+        else if (r11 > r22)
         {
-            float s = Mathf.Sqrt(1f + m11 - m00 - m22) * 2f;
-            q.w = (m02 - m20) / s;
-            q.x = (m01 + m10) / s;
+            float s = Mathf.Sqrt(1f + r11 - r00 - r22) * 2f;
+            q.w = (r02 - r20) / s;
+            q.x = (r01 + r10) / s;
             q.y = 0.25f * s;
-            q.z = (m12 + m21) / s;
+            q.z = (r12 + r21) / s;
         }
         else
         {
-            float s = Mathf.Sqrt(1f + m22 - m00 - m11) * 2f;
-            q.w = (m10 - m01) / s;
-            q.x = (m02 + m20) / s;
-            q.y = (m12 + m21) / s;
+            float s = Mathf.Sqrt(1f + r22 - r00 - r11) * 2f;
+            q.w = (r10 - r01) / s;
+            q.x = (r02 + r20) / s;
+            q.y = (r12 + r21) / s;
             q.z = 0.25f * s;
         }
 
-        return q;
+        return q.normalized;
     }
-    
+
     public Vec3 GetScale()
     {
         float sx = new Vec3(m00, m10, m20).magnitude;
         float sy = new Vec3(m01, m11, m21).magnitude;
         float sz = new Vec3(m02, m12, m22).magnitude;
-        
+
         return new Vec3(sx, sy, sz);
     }
-    
+
     public Matrix4x4 ToUnityMatrix()
     {
         Matrix4x4 mat = new Matrix4x4();
@@ -244,10 +260,5 @@ public struct M4X4
         mat.m30 = m30; mat.m31 = m31; mat.m32 = m32; mat.m33 = m33;
 
         return mat;
-    }
-
-    private void Validate()
-    {
-        
     }
 }
